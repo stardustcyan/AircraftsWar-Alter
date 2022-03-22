@@ -241,24 +241,26 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
-                        double prob = Math.random();
-                        double dirProb = Math.random();
+                        if(enemyAircraft.isElite()) {
+                            double prob = Math.random();
+                            double dirProb = Math.random();
 
-                        if(prob < 0.25) {
-                            itemList.add(new HealingItem(enemyAircraft.getLocationX(),
-                                                         enemyAircraft.getLocationY(),
-                                                         dirProb >= 0.5 ? -2 : 2,
-                                                         5));
-                        } else if(prob >= 0.25 && prob <= 0.5) {
-                            itemList.add(new FireSupplyItem(enemyAircraft.getLocationX(),
-                                    enemyAircraft.getLocationY(),
-                                    dirProb >= 0.5 ? -3 : 3,
-                                    5));
-                        } else if(prob > 0.5 && prob <= 0.75) {
-                            itemList.add(new BombSupplyItem(enemyAircraft.getLocationX(),
-                                    enemyAircraft.getLocationY(),
-                                    dirProb >= 0.5 ? -3 : 3,
-                                    5));
+                            if (prob < 0.25) {
+                                itemList.add(new HealingItem(enemyAircraft.getLocationX(),
+                                        enemyAircraft.getLocationY(),
+                                        dirProb >= 0.5 ? -2 : 2,
+                                        5));
+                            } else if (prob >= 0.25 && prob <= 0.5) {
+                                itemList.add(new FireSupplyItem(enemyAircraft.getLocationX(),
+                                        enemyAircraft.getLocationY(),
+                                        dirProb >= 0.5 ? -3 : 3,
+                                        5));
+                            } else if (prob > 0.5 && prob <= 0.75) {
+                                itemList.add(new BombSupplyItem(enemyAircraft.getLocationX(),
+                                        enemyAircraft.getLocationY(),
+                                        dirProb >= 0.5 ? -3 : 3,
+                                        5));
+                            }
                         }
 
                         score += 10;

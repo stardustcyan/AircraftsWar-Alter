@@ -33,4 +33,8 @@ public class MobEnemy extends AbstractAircraft {
         return new LinkedList<>();
     }
 
+    public boolean isElite() {
+        return false;
+    }
+
 }

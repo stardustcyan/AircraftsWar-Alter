@@ -51,6 +51,8 @@ public abstract class AbstractAircraft extends FlyingObject {
      */
     public abstract List<AbstractBullet> shoot();
 
+    public abstract  boolean isElite();
+
 }
 
 

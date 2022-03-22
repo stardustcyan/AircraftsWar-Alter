@@ -42,4 +42,8 @@ public class EliteEnemy extends AbstractAircraft {
 
         return res;
     }
+
+    public boolean isElite() {
+        return true;
+    }
 }

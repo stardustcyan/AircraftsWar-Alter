@@ -54,4 +54,8 @@ public class HeroAircraft extends AbstractAircraft {
         return res;
     }
 
+    public boolean isElite() {
+        return false;
+    }
+
 }
