@@ -1,11 +1,11 @@
 package edu.hitsz.factory;
 
 import edu.hitsz.aircraft.AbstractAircraft;
-import edu.hitsz.aircraft.EliteEnemy;
+import edu.hitsz.aircraft.BossEnemy;
 
-public class EliteFactory extends AbstractFactory{
+public class BossEnemyFactory extends AbstractEnemyFactory {
     @Override
     public AbstractAircraft createEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
-        return new EliteEnemy(locationX, locationY, speedX, speedY, hp);
+        return new BossEnemy(locationX, locationY, speedX, speedY, hp);
     }
 }

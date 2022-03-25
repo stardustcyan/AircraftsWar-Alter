@@ -9,7 +9,7 @@ public class FireSupplyItem extends AbstractItem {
     }
 
     @Override
-    public void itemFunction(HeroAircraft hero) {
+    public void itemFunction() {
         System.out.println("FireSupply active!");
     }
 

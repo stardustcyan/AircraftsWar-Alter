@@ -3,9 +3,7 @@ package edu.hitsz.application;
 import edu.hitsz.aircraft.*;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
-import edu.hitsz.factory.BossFactory;
-import edu.hitsz.factory.EliteFactory;
-import edu.hitsz.factory.MobFactory;
+import edu.hitsz.factory.*;
 import edu.hitsz.item.AbstractItem;
 import edu.hitsz.item.BombSupplyItem;
 import edu.hitsz.item.FireSupplyItem;
@@ -42,9 +40,12 @@ public class Game extends JPanel {
     private final List<BaseBullet> heroBullets;
     private final List<BaseBullet> enemyBullets;
     private final List<AbstractItem> itemList;
-    private final EliteFactory eliteFactory = new EliteFactory();
-    private final MobFactory mobFactory = new MobFactory();
-    private final BossFactory bossFactory = new BossFactory();
+    private final EliteEnemyFactory eliteFactory = new EliteEnemyFactory();
+    private final MobEnemyFactory mobFactory = new MobEnemyFactory();
+    private final BossEnemyFactory bossFactory = new BossEnemyFactory();
+    private final HealingItemFactory healingItemFactory = new HealingItemFactory();
+    private final FireSupplyItemFactory fireSupplyItemFactory = new FireSupplyItemFactory();
+    private final BombSupplyItemFactory bombSupplyItemFactory = new BombSupplyItemFactory();
 
     private int enemyMaxNumber = 5;
 
@@ -103,7 +104,7 @@ public class Game extends JPanel {
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2)*1,
                                 0,
                                 10,
-                                250
+                                200
                         ));
                     }
                 }
@@ -249,7 +250,18 @@ public class Game extends JPanel {
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
                         score += 10;
-                        AbstractItem newItem = enemyAircraft.dropItem();
+
+                        double prob = Math.random();
+                        double dirProb = Math.random();
+                        AbstractItem newItem = null;
+                        if (prob < 0.25) {
+                            newItem = enemyAircraft.dropItem(healingItemFactory);
+                        } else if (prob >= 0.25 && prob <= 0.5) {
+                            newItem = enemyAircraft.dropItem(fireSupplyItemFactory);
+                        } else if (prob > 0.5 && prob <= 0.75) {
+                            newItem = enemyAircraft.dropItem(bombSupplyItemFactory);
+                        }
+
                         if(newItem != null)
                             itemList.add(newItem);
                     }
@@ -268,7 +280,7 @@ public class Game extends JPanel {
                 continue;
 
             if(heroAircraft.crash(item)) {
-                item.itemFunction(heroAircraft);
+                item.itemFunction();
                 item.vanish();
             }
         }

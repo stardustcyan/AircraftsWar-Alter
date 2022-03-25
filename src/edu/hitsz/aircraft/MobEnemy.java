@@ -2,6 +2,7 @@ package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
+import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
 
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ public class MobEnemy extends AbstractAircraft {
         return false;
     }
 
-    public AbstractItem dropItem() {
+    public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         return null;
     }
 

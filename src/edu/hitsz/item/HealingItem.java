@@ -1,5 +1,6 @@
 package edu.hitsz.item;
 
+import edu.hitsz.aircraft.AbstractAircraft;
 import edu.hitsz.aircraft.HeroAircraft;
 import edu.hitsz.application.Main;
 
@@ -11,7 +12,8 @@ public class HealingItem extends AbstractItem {
     }
 
     @Override
-    public void itemFunction(HeroAircraft hero) {
+    public void itemFunction() {
+        HeroAircraft hero = HeroAircraft.getInstance();
         hero.increaseHp(healHp);
     }
 

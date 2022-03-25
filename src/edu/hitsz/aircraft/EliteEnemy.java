@@ -3,6 +3,7 @@ package edu.hitsz.aircraft;
 import edu.hitsz.application.Main;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.EnemyBullet;
+import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
 import edu.hitsz.item.BombSupplyItem;
 import edu.hitsz.item.FireSupplyItem;
@@ -45,18 +46,9 @@ public class EliteEnemy extends AbstractAircraft {
         return res;
     }
 
-    public AbstractItem dropItem() {
-        double prob = Math.random();
+    public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         double dirProb = Math.random();
 
-        if (prob < 0.25) {
-            return new HealingItem(locationX, locationY, dirProb >= 0.5 ? -2 : 2, 5);
-        } else if (prob >= 0.25 && prob <= 0.5) {
-            return new FireSupplyItem(locationX, locationY, dirProb >= 0.5 ? -3 : 3, 5);
-        } else if (prob > 0.5 && prob <= 0.75) {
-            return new BombSupplyItem(locationX, locationY, dirProb >= 0.5 ? -3 : 3, 5);
-        } else {
-            return null;
-        }
+        return itemFactory.createItem(locationX, locationY, dirProb >= 0.5 ? -2 : 2, 5);
     }
 }

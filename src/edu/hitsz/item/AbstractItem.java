@@ -8,5 +8,5 @@ public abstract class AbstractItem extends AbstractFlyingObject {
         super(locationX, locationY, speedX, speedY);
     }
 
-    public abstract void itemFunction(HeroAircraft hero);
+    public abstract void itemFunction();
 }

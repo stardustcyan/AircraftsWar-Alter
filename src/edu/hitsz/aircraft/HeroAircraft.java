@@ -3,21 +3,26 @@ package edu.hitsz.aircraft;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.bullet.HeroBullet;
+import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
 
 import java.util.LinkedList;
 import java.util.List;
 
 public class HeroAircraft extends AbstractAircraft{
-    private static HeroAircraft hero = new HeroAircraft();
+    private volatile static HeroAircraft hero;
     private int direction = -1;
     private int shootNum = 1;
     private int power = 20;
 
-    private HeroAircraft() {
-        super(0, 0, 0, 0, 0);
-    }
+    private HeroAircraft() { }
     public static HeroAircraft getInstance() {
+        if(hero == null) {
+            synchronized (HeroAircraft.class) {
+                if(hero == null)
+                    hero = new HeroAircraft();
+            }
+        }
         return hero;
     }
 
@@ -27,6 +32,7 @@ public class HeroAircraft extends AbstractAircraft{
         this.speedX = speedX;
         this.speedY = speedY;
         this.hp = hp;
+        this.maxHp = hp;
     }
 
     @Override
@@ -55,7 +61,13 @@ public class HeroAircraft extends AbstractAircraft{
         // 英雄机由鼠标控制，不通过forward函数移动
     }
 
-    public AbstractItem dropItem() {
+    public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         return null;
+    }
+
+    public void increaseHp(int increase) {
+        hp += increase;
+        if(hp > maxHp)
+            hp = maxHp;
     }
 }

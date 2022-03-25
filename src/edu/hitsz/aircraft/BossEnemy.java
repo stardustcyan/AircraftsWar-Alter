@@ -1,6 +1,7 @@
 package edu.hitsz.aircraft;
 
 import edu.hitsz.bullet.BaseBullet;
+import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
 
 import java.util.List;
@@ -17,7 +18,7 @@ public class BossEnemy extends AbstractAircraft{
     }
 
     @Override
-    public AbstractItem dropItem() {
+    public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         return null;
     }
 }
