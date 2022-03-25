@@ -1,8 +1,11 @@
 package edu.hitsz.application;
 
 import edu.hitsz.aircraft.*;
-import edu.hitsz.bullet.AbstractBullet;
-import edu.hitsz.basic.FlyingObject;
+import edu.hitsz.bullet.BaseBullet;
+import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.factory.BossFactory;
+import edu.hitsz.factory.EliteFactory;
+import edu.hitsz.factory.MobFactory;
 import edu.hitsz.item.AbstractItem;
 import edu.hitsz.item.BombSupplyItem;
 import edu.hitsz.item.FireSupplyItem;
@@ -36,9 +39,12 @@ public class Game extends JPanel {
 
     private final HeroAircraft heroAircraft;
     private final List<AbstractAircraft> enemyAircrafts;
-    private final List<AbstractBullet> heroBullets;
-    private final List<AbstractBullet> enemyBullets;
+    private final List<BaseBullet> heroBullets;
+    private final List<BaseBullet> enemyBullets;
     private final List<AbstractItem> itemList;
+    private final EliteFactory eliteFactory = new EliteFactory();
+    private final MobFactory mobFactory = new MobFactory();
+    private final BossFactory bossFactory = new BossFactory();
 
     private int enemyMaxNumber = 5;
 
@@ -57,7 +63,8 @@ public class Game extends JPanel {
     private int shootPeriodFlag = 0;
 
     public Game() {
-        heroAircraft = new HeroAircraft(
+        heroAircraft = HeroAircraft.getInstance();
+        heroAircraft.setStatus(
                 Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
                 0, 0, 100);
@@ -91,7 +98,7 @@ public class Game extends JPanel {
                 if(eliteGenerationFlag == 50) {
                     eliteGenerationFlag = 0;
                     if(enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(new EliteEnemy(
+                        enemyAircrafts.add(eliteFactory.createEnemy(
                                 (int) ( Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()))*1,
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2)*1,
                                 0,
@@ -104,7 +111,7 @@ public class Game extends JPanel {
                 if(mobGenerationFlag == 12) {
                     mobGenerationFlag = 0;
                     if (enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(new MobEnemy(
+                        enemyAircrafts.add(mobFactory.createEnemy(
                                 (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2) * 1,
                                 0,
@@ -173,7 +180,7 @@ public class Game extends JPanel {
 
     private void shootAction() {
         // 敌机射击
-        if(shootPeriodFlag == 5) {
+        if(shootPeriodFlag == 10) {
             for (AbstractAircraft enemy : enemyAircrafts)
                 enemyBullets.addAll(enemy.shoot());
 
@@ -184,10 +191,10 @@ public class Game extends JPanel {
     }
 
     private void bulletsMoveAction() {
-        for (AbstractBullet bullet : heroBullets) {
+        for (BaseBullet bullet : heroBullets) {
             bullet.forward();
         }
-        for (AbstractBullet bullet : enemyBullets) {
+        for (BaseBullet bullet : enemyBullets) {
             bullet.forward();
         }
     }
@@ -213,7 +220,7 @@ public class Game extends JPanel {
      */
     private void crashCheckAction() {
         // 敌机子弹攻击英雄
-        for(AbstractBullet bullet: enemyBullets) {
+        for(BaseBullet bullet: enemyBullets) {
             if(bullet.notValid())
                 continue;
 
@@ -224,7 +231,7 @@ public class Game extends JPanel {
         }
 
         // 英雄子弹攻击敌机
-        for (AbstractBullet bullet : heroBullets) {
+        for (BaseBullet bullet : heroBullets) {
             if (bullet.notValid()) {
                 continue;
             }
@@ -241,29 +248,10 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
-                        if(enemyAircraft.isElite()) {
-                            double prob = Math.random();
-                            double dirProb = Math.random();
-
-                            if (prob < 0.25) {
-                                itemList.add(new HealingItem(enemyAircraft.getLocationX(),
-                                        enemyAircraft.getLocationY(),
-                                        dirProb >= 0.5 ? -2 : 2,
-                                        5));
-                            } else if (prob >= 0.25 && prob <= 0.5) {
-                                itemList.add(new FireSupplyItem(enemyAircraft.getLocationX(),
-                                        enemyAircraft.getLocationY(),
-                                        dirProb >= 0.5 ? -3 : 3,
-                                        5));
-                            } else if (prob > 0.5 && prob <= 0.75) {
-                                itemList.add(new BombSupplyItem(enemyAircraft.getLocationX(),
-                                        enemyAircraft.getLocationY(),
-                                        dirProb >= 0.5 ? -3 : 3,
-                                        5));
-                            }
-                        }
-
                         score += 10;
+                        AbstractItem newItem = enemyAircraft.dropItem();
+                        if(newItem != null)
+                            itemList.add(newItem);
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -295,10 +283,10 @@ public class Game extends JPanel {
      * 无效的原因可能是撞击或者飞出边界
      */
     private void postProcessAction() {
-        enemyBullets.removeIf(FlyingObject::notValid);
-        heroBullets.removeIf(FlyingObject::notValid);
-        enemyAircrafts.removeIf(FlyingObject::notValid);
-        itemList.removeIf(FlyingObject::notValid);
+        enemyBullets.removeIf(AbstractFlyingObject::notValid);
+        heroBullets.removeIf(AbstractFlyingObject::notValid);
+        enemyAircrafts.removeIf(AbstractFlyingObject::notValid);
+        itemList.removeIf(AbstractFlyingObject::notValid);
     }
 
 
@@ -340,12 +328,12 @@ public class Game extends JPanel {
 
     }
 
-    private void paintImageWithPositionRevised(Graphics g, List<? extends FlyingObject> objects) {
+    private void paintImageWithPositionRevised(Graphics g, List<? extends AbstractFlyingObject> objects) {
         if (objects.size() == 0) {
             return;
         }
 
-        for (FlyingObject object : objects) {
+        for (AbstractFlyingObject object : objects) {
             BufferedImage image = object.getImage();
             assert image != null : objects.getClass().getName() + " has no image! ";
             g.drawImage(image, object.getLocationX() - image.getWidth() / 2,
