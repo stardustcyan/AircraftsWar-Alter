@@ -18,6 +18,7 @@ public class MobEnemy extends AbstractAircraft {
 
     public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
+        bossFlag = false;
     }
 
     @Override
@@ -34,6 +35,7 @@ public class MobEnemy extends AbstractAircraft {
         return new LinkedList<>();
     }
 
+    @Override
     public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         return null;
     }

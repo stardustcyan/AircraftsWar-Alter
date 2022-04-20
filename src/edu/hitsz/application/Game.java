@@ -3,6 +3,8 @@ package edu.hitsz.application;
 import edu.hitsz.aircraft.*;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.dao.PlayerDAO;
+import edu.hitsz.dao.PlayerDAOImpl;
 import edu.hitsz.factory.*;
 import edu.hitsz.item.AbstractItem;
 import edu.hitsz.item.BombSupplyItem;
@@ -56,19 +58,20 @@ public class Game extends JPanel {
      * 周期（ms)
      * 指示子弹的发射、敌机的产生频率
      */
-    private int cycleDuration = 100;
+    private int cycleDuration = 300;
     private int cycleTime = 0;
     private int eliteGenerationFlag = 0;
     private int mobGenerationFlag = 0;
 
     private int shootPeriodFlag = 0;
+    private boolean bossGenerationFlag = true;
 
     public Game() {
         heroAircraft = HeroAircraft.getInstance();
         heroAircraft.setStatus(
                 Main.WINDOW_WIDTH / 2,
                 Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
-                0, 0, 100);
+                0, 0, 1000);
 
         enemyAircrafts = new LinkedList<>();
         heroBullets = new LinkedList<>();
@@ -76,7 +79,15 @@ public class Game extends JPanel {
         itemList = new LinkedList<>();
 
         //Scheduled 线程池，用于定时任务调度
-        executorService = new ScheduledThreadPoolExecutor(1);
+        ThreadFactory gameThread = new ThreadFactory() {
+            @Override
+            public Thread newThread(Runnable r) {
+                Thread t = new Thread(r);
+                t.setName("game thread");
+                return t;
+            }
+        };
+        executorService = new ScheduledThreadPoolExecutor(1, gameThread);
 
         //启动英雄机鼠标监听
         new HeroController(this, heroAircraft);
@@ -96,20 +107,30 @@ public class Game extends JPanel {
             // 周期性执行（控制频率）
             if (timeCountAndNewCycleJudge()) {
                 System.out.println(time);
-                if(eliteGenerationFlag == 50) {
+                if(score % 200 == 0 && score != 0 && bossGenerationFlag) {
+                    bossGenerationFlag = false;
+                    enemyAircrafts.add(bossFactory.createEnemy(
+                            (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
+                            0,
+                            1,
+                            2,
+                            1500
+                    ));
+                }
+                if(eliteGenerationFlag == 20) {
                     eliteGenerationFlag = 0;
                     if(enemyAircrafts.size() < enemyMaxNumber) {
                         enemyAircrafts.add(eliteFactory.createEnemy(
                                 (int) ( Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()))*1,
                                 (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2)*1,
-                                0,
-                                10,
+                                Math.random() > 0.3 ? 4 : 0,
+                                7,
                                 200
                         ));
                     }
                 }
                 // 新敌机产生
-                if(mobGenerationFlag == 12) {
+                if(mobGenerationFlag == 5) {
                     mobGenerationFlag = 0;
                     if (enemyAircrafts.size() < enemyMaxNumber) {
                         enemyAircrafts.add(mobFactory.createEnemy(
@@ -152,6 +173,11 @@ public class Game extends JPanel {
                 executorService.shutdown();
                 gameOverFlag = true;
                 System.out.println("Game Over!");
+                PlayerDAO playerDAO = new PlayerDAOImpl();
+                playerDAO.getPlayerList();
+                playerDAO.addPlayer("testPlayer", score);
+                playerDAO.printPlayerList();
+                playerDAO.savePlayerList();
             }
 
         };
@@ -181,9 +207,10 @@ public class Game extends JPanel {
 
     private void shootAction() {
         // 敌机射击
-        if(shootPeriodFlag == 10) {
-            for (AbstractAircraft enemy : enemyAircrafts)
+        if(shootPeriodFlag == 5) {
+            for (AbstractAircraft enemy : enemyAircrafts) {
                 enemyBullets.addAll(enemy.shoot());
+            }
 
             shootPeriodFlag = 0;
         }
@@ -222,8 +249,9 @@ public class Game extends JPanel {
     private void crashCheckAction() {
         // 敌机子弹攻击英雄
         for(BaseBullet bullet: enemyBullets) {
-            if(bullet.notValid())
+            if(bullet.notValid()) {
                 continue;
+            }
 
             if(heroAircraft.crash(bullet)) {
                 heroAircraft.decreaseHp(bullet.getPower());
@@ -250,20 +278,23 @@ public class Game extends JPanel {
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
                         score += 10;
+                        if(enemyAircraft.bossFlag)
+                            bossGenerationFlag = true;
 
                         double prob = Math.random();
                         double dirProb = Math.random();
                         AbstractItem newItem = null;
-                        if (prob < 0.25) {
+                        if (prob < 0.3) {
                             newItem = enemyAircraft.dropItem(healingItemFactory);
-                        } else if (prob >= 0.25 && prob <= 0.5) {
+                        } else if (prob >= 0.3 && prob <= 0.6) {
                             newItem = enemyAircraft.dropItem(fireSupplyItemFactory);
-                        } else if (prob > 0.5 && prob <= 0.75) {
+                        } else if (prob > 0.6 && prob <= 0.9) {
                             newItem = enemyAircraft.dropItem(bombSupplyItemFactory);
                         }
 
-                        if(newItem != null)
+                        if(newItem != null) {
                             itemList.add(newItem);
+                        }
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁
@@ -276,8 +307,9 @@ public class Game extends JPanel {
 
         // 我方获得道具，道具生效
         for(AbstractItem item: itemList) {
-            if(item.notValid())
+            if(item.notValid()) {
                 continue;
+            }
 
             if(heroAircraft.crash(item)) {
                 item.itemFunction();

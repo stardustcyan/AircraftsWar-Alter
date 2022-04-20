@@ -19,6 +19,7 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
      */
     protected int maxHp;
     protected int hp;
+    public boolean bossFlag;
 
     public AbstractAircraft(){ }
 

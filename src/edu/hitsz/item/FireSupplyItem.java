@@ -2,6 +2,8 @@ package edu.hitsz.item;
 
 import edu.hitsz.aircraft.HeroAircraft;
 import edu.hitsz.application.Main;
+import edu.hitsz.strategy.HeroSprayStrategy;
+import edu.hitsz.strategy.HeroStraightStrategy;
 
 public class FireSupplyItem extends AbstractItem {
     public FireSupplyItem(int locationX, int locationY, int speedX, int speedY) {
@@ -10,6 +12,8 @@ public class FireSupplyItem extends AbstractItem {
 
     @Override
     public void itemFunction() {
+        HeroAircraft hero = HeroAircraft.getInstance();
+        hero.fireObj.setStrategy(new HeroSprayStrategy());
         System.out.println("FireSupply active!");
     }
 

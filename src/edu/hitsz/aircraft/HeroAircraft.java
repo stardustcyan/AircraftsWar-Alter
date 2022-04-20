@@ -1,29 +1,31 @@
 package edu.hitsz.aircraft;
 
-import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.bullet.BaseBullet;
-import edu.hitsz.bullet.HeroBullet;
 import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
+import edu.hitsz.strategy.Context;
+import edu.hitsz.strategy.HeroStraightStrategy;
+import edu.hitsz.strategy.Strategy;
 
-import java.util.LinkedList;
 import java.util.List;
 
 public class HeroAircraft extends AbstractAircraft{
     private volatile static HeroAircraft hero;
-    private int direction = -1;
-    private int shootNum = 1;
-    private int power = 20;
+    public Context fireObj;
 
     private HeroAircraft() { }
     public static HeroAircraft getInstance() {
         if(hero == null) {
             synchronized (HeroAircraft.class) {
-                if(hero == null)
+                if(hero == null) {
                     hero = new HeroAircraft();
+                }
             }
         }
         return hero;
+    }
+    public void setStrategy(Strategy strategy) {
+        fireObj.setStrategy(strategy);
     }
 
     public void setStatus(int locationX, int locationY, int speedX, int speedY, int hp) {
@@ -33,6 +35,7 @@ public class HeroAircraft extends AbstractAircraft{
         this.speedY = speedY;
         this.hp = hp;
         this.maxHp = hp;
+        this.fireObj = new Context(new HeroStraightStrategy(), locationX, locationY, -1, speedY, 30, 1);
     }
 
     @Override
@@ -41,19 +44,8 @@ public class HeroAircraft extends AbstractAircraft{
      * @return 射击出的子弹List
      */
     public List<BaseBullet> shoot() {
-        List<BaseBullet> res = new LinkedList<>();
-        int x = this.getLocationX();
-        int y = this.getLocationY() + direction*2;
-        int speedX = 0;
-        int speedY = this.getSpeedY() + direction*8;
-        BaseBullet baseBullet;
-        for(int i=0; i<shootNum; i++){
-            // 子弹发射位置相对飞机位置向前偏移
-            // 多个子弹横向分散
-            baseBullet = new HeroBullet(x + (i*2 - shootNum + 1)*10, y, speedX, speedY, power);
-            res.add(baseBullet);
-        }
-        return res;
+        fireObj.updateStatus(getLocationX(), getLocationY(), getSpeedY());
+        return fireObj.executeStrategy();
     }
 
     @Override
@@ -61,13 +53,15 @@ public class HeroAircraft extends AbstractAircraft{
         // 英雄机由鼠标控制，不通过forward函数移动
     }
 
+    @Override
     public AbstractItem dropItem(AbstractItemFactory itemFactory) {
         return null;
     }
 
     public void increaseHp(int increase) {
         hp += increase;
-        if(hp > maxHp)
+        if(hp > maxHp) {
             hp = maxHp;
+        }
     }
 }
