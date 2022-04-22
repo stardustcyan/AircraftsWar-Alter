@@ -7,9 +7,6 @@ import edu.hitsz.dao.PlayerDAO;
 import edu.hitsz.dao.PlayerDAOImpl;
 import edu.hitsz.factory.*;
 import edu.hitsz.item.AbstractItem;
-import edu.hitsz.item.BombSupplyItem;
-import edu.hitsz.item.FireSupplyItem;
-import edu.hitsz.item.HealingItem;
 
 import javax.swing.*;
 import java.awt.*;

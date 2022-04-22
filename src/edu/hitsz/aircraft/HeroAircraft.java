@@ -35,7 +35,7 @@ public class HeroAircraft extends AbstractAircraft{
         this.speedY = speedY;
         this.hp = hp;
         this.maxHp = hp;
-        this.fireObj = new Context(new HeroStraightStrategy(), locationX, locationY, -1, speedY, 30, 1);
+        this.fireObj = new Context(new HeroStraightStrategy(), locationX, locationY, -1, speedY, 50, 1);
     }
 
     @Override

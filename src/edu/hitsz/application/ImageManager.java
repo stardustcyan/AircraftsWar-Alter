@@ -45,10 +45,12 @@ public class ImageManager {
     public static BufferedImage BOMB_ITEM_IMAGE;
     public static BufferedImage BULLET_ITEM_IMAGE;
 
+    public static String diffBG = "src/images/bg.jpg";
+
     static {
         try {
-
-            BACKGROUND_IMAGE = ImageIO.read(new FileInputStream("src/images/bg.jpg"));
+            System.out.println(diffBG);
+            BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(diffBG));
 
             HERO_IMAGE = ImageIO.read(new FileInputStream("src/images/hero.png"));
             MOB_ENEMY_IMAGE = ImageIO.read(new FileInputStream("src/images/mob.png"));
