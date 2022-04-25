@@ -17,7 +17,11 @@ import java.util.concurrent.TimeUnit;
 public class Main {
 
     public static final int WINDOW_WIDTH = 512;
+    public static boolean bgmFlag = false;
     public static final int WINDOW_HEIGHT = 768;
+    public static Object lock = new Object();
+
+    public static JFrame frame = new JFrame("Aircraft War");
 
     public static void main(String[] args) {
 
@@ -32,15 +36,22 @@ public class Main {
         menuFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         menuFrame.pack();
 
-        Object lock = new Object();
+        //设置窗口的大小和位置,居中放置
+        menuFrame.setBounds(((int) screenSize.getWidth() - WINDOW_WIDTH) / 2, ((int) screenSize.getHeight() - WINDOW_HEIGHT) / 2,
+                WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2);
 
-        JFrame frame = new JFrame("Aircraft War");
         frame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setResizable(false);
         //设置窗口的大小和位置,居中放置
         frame.setBounds(((int) screenSize.getWidth() - WINDOW_WIDTH) / 2, 0,
                 WINDOW_WIDTH, WINDOW_HEIGHT);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        JFrame rankFrame = new JFrame("得分排名");
+        PlayerRank rankObj = new PlayerRank();
+        rankFrame.setContentPane(rankObj.panelRank);
+        rankFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        rankFrame.pack();
 
         Runnable rGame = () -> {
             synchronized (lock) {
@@ -68,7 +79,7 @@ public class Main {
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
-                        System.out.println(ImageManager.diffBG);
+                        bgmFlag = menuObj.audioCheckBox.isSelected();
                         menuFrame.setVisible(false);
                         lock.notify();
                     }
@@ -84,7 +95,7 @@ public class Main {
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
-                        System.out.println(ImageManager.diffBG);
+                        bgmFlag = menuObj.audioCheckBox.isSelected();
                         menuFrame.setVisible(false);
                         lock.notify();
                     }
@@ -100,7 +111,7 @@ public class Main {
                         } catch (IOException ex) {
                             throw new RuntimeException(ex);
                         }
-                        System.out.println(ImageManager.diffBG);
+                        bgmFlag = menuObj.audioCheckBox.isSelected();
                         menuFrame.setVisible(false);
                         lock.notify();
                     }
@@ -110,6 +121,7 @@ public class Main {
 
         Thread menuThread = new Thread(rMenu, "Menu");
         Thread gameThread = new Thread(rGame, "Game");
+
         gameThread.start();
         menuThread.start();
     }

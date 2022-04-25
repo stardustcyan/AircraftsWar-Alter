@@ -3,17 +3,23 @@ package edu.hitsz.application;
 import edu.hitsz.aircraft.*;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.dao.Player;
 import edu.hitsz.dao.PlayerDAO;
 import edu.hitsz.dao.PlayerDAOImpl;
 import edu.hitsz.factory.*;
 import edu.hitsz.item.AbstractItem;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.*;
+
+import static edu.hitsz.application.Main.*;
 
 /**
  * 游戏主面板，游戏启动
@@ -55,7 +61,7 @@ public class Game extends JPanel {
      * 周期（ms)
      * 指示子弹的发射、敌机的产生频率
      */
-    private int cycleDuration = 300;
+    private int cycleDuration = 500;
     private int cycleTime = 0;
     private int eliteGenerationFlag = 0;
     private int mobGenerationFlag = 0;
@@ -63,11 +69,14 @@ public class Game extends JPanel {
     private int shootPeriodFlag = 0;
     private boolean bossGenerationFlag = true;
 
+    private MusicThread bgmThread = new MusicThread("src/videos/bgm.wav");
+    private MusicThread bossThread = new MusicThread("src/videos/bgm_boss.wav");
+
     public Game() {
         heroAircraft = HeroAircraft.getInstance();
         heroAircraft.setStatus(
-                Main.WINDOW_WIDTH / 2,
-                Main.WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
+                WINDOW_WIDTH / 2,
+                WINDOW_HEIGHT - ImageManager.HERO_IMAGE.getHeight() ,
                 0, 0, 1000);
 
         enemyAircrafts = new LinkedList<>();
@@ -95,6 +104,10 @@ public class Game extends JPanel {
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+        if(Main.bgmFlag) {
+            bgmThread.start();
+            bgmThread.setLoop(true);
+        }
 
         // 定时任务：绘制、对象产生、碰撞判定、击毁及结束判定
         Runnable task = () -> {
@@ -105,9 +118,15 @@ public class Game extends JPanel {
             if (timeCountAndNewCycleJudge()) {
                 System.out.println(time);
                 if(score % 200 == 0 && score != 0 && bossGenerationFlag) {
+                    if(bgmFlag) {
+                        bossThread = new MusicThread("src/videos/bgm_boss.wav");
+                        bossThread.start();
+                        bossThread.setLoop(true);
+                        bgmThread.over();
+                    }
                     bossGenerationFlag = false;
                     enemyAircrafts.add(bossFactory.createEnemy(
-                            (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
+                            (int) (Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
                             0,
                             1,
                             2,
@@ -118,8 +137,8 @@ public class Game extends JPanel {
                     eliteGenerationFlag = 0;
                     if(enemyAircrafts.size() < enemyMaxNumber) {
                         enemyAircrafts.add(eliteFactory.createEnemy(
-                                (int) ( Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()))*1,
-                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2)*1,
+                                (int) ( Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()))*1,
+                                (int) (Math.random() * WINDOW_HEIGHT * 0.2)*1,
                                 Math.random() > 0.3 ? 4 : 0,
                                 7,
                                 200
@@ -131,8 +150,8 @@ public class Game extends JPanel {
                     mobGenerationFlag = 0;
                     if (enemyAircrafts.size() < enemyMaxNumber) {
                         enemyAircrafts.add(mobFactory.createEnemy(
-                                (int) (Math.random() * (Main.WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
-                                (int) (Math.random() * Main.WINDOW_HEIGHT * 0.2) * 1,
+                                (int) (Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
+                                (int) (Math.random() * WINDOW_HEIGHT * 0.2) * 1,
                                 0,
                                 10,
                                 100
@@ -167,16 +186,117 @@ public class Game extends JPanel {
             // 游戏结束检查
             if (heroAircraft.getHp() <= 0) {
                 // 游戏结束
+                if(bgmFlag) {
+                    bgmThread.over();
+                    MusicThread gameOverThread = new MusicThread("src/videos/game_over.wav");
+                    gameOverThread.setLoop(false);
+                    gameOverThread.start();
+                }
+
                 executorService.shutdown();
+                Main.frame.setVisible(false);
                 gameOverFlag = true;
                 System.out.println("Game Over!");
-                PlayerDAO playerDAO = new PlayerDAOImpl();
-                playerDAO.getPlayerList();
-                playerDAO.addPlayer("testPlayer", score);
-                playerDAO.printPlayerList();
-                playerDAO.savePlayerList();
-            }
 
+                PlayerDAO playerDAO = new PlayerDAOImpl();
+                playerDAO.readPlayerList();
+
+                JFrame addFrame = new JFrame("添加新纪录");
+                CreateNewPlayer addObj = new CreateNewPlayer();
+                addFrame.setContentPane(addObj.contentPane);
+                addFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                addFrame.pack();
+
+                JFrame rankFrame = new JFrame("得分排名");
+                PlayerRank rankObj = new PlayerRank();
+                rankFrame.setContentPane(rankObj.panelRank);
+                rankFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                rankFrame.pack();
+
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                rankFrame.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+                rankFrame.setBounds(((int) screenSize.getWidth() - WINDOW_WIDTH) / 2, 0,
+                        WINDOW_WIDTH, WINDOW_HEIGHT);
+
+                //addFrame.setSize(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 10);
+                //设置窗口的大小和位置,居中放置
+                addFrame.setBounds(((int) screenSize.getWidth() - WINDOW_WIDTH) / 2, 0,
+                        WINDOW_WIDTH, WINDOW_HEIGHT / 3);
+
+                Object lock = new Object();
+
+                addObj.buttonOK.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        synchronized (lock) {
+                            playerDAO.addPlayer(addObj.playerIDEditior.getText(), score);
+                            addFrame.setVisible(false);
+                            rankFrame.setVisible(true);
+                            lock.notify();
+                        }
+                    }
+                });
+
+                addObj.buttonCancel.addActionListener(new ActionListener() {
+                    @Override
+                    public void actionPerformed(ActionEvent e) {
+                        synchronized (lock) {
+                            addFrame.setVisible(false);
+                            rankFrame.setVisible(true);
+                            lock.notify();
+                        }
+                    }
+                });
+
+
+                List<Player> playerList = null;
+
+                Runnable rAddPlayer = () -> {
+                    addFrame.setVisible(true);
+                };
+
+                Runnable rRankList = () -> {
+                    synchronized (lock) {
+                        try {
+                            lock.wait();
+                        } catch(InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    List<Player> playerListTemp = playerDAO.getPlayerList();
+                    String[] columnName = {"排名", "ID", "成绩", "时间"};
+                    String[][] tableData = new String[playerListTemp.size()][4];
+                    for(Player player: playerListTemp) {
+                        tableData[playerListTemp.indexOf(player)][0] = (playerListTemp.indexOf(player) + 1) + "";
+                        tableData[playerListTemp.indexOf(player)][1] = player.getPlayerName();
+                        tableData[playerListTemp.indexOf(player)][2] = player.getScore() + "";
+                        tableData[playerListTemp.indexOf(player)][3] = player.getDateTime();
+                    }
+                    DefaultTableModel model = new DefaultTableModel(tableData, columnName) {
+                        @Override
+                        public boolean isCellEditable(int row, int col) {
+                            return false;
+                        }
+                    };
+                    rankObj.tableRank.setModel(model);
+                    rankObj.DELETEButton.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(ActionEvent e) {
+                            int row = rankObj.tableRank.getSelectedRow();
+                            if(row != -1) {
+                                model.removeRow(row);
+                                playerDAO.deletePlayer(row);
+                                playerDAO.savePlayerList();
+                            }
+                        }
+                    });
+                };
+                Thread tAddPlayer = new Thread(rAddPlayer, "AddPlayer");
+                Thread tRankList = new Thread(rRankList, "RankList");
+                tRankList.start();
+                tAddPlayer.start();
+
+            }
         };
 
         /**
@@ -213,6 +333,10 @@ public class Game extends JPanel {
         }
         // 英雄射击
         heroBullets.addAll(heroAircraft.shoot());
+        if(bgmFlag) {
+            MusicThread bulletShootThread = new MusicThread("src/videos/bullet.wav");
+            bulletShootThread.start();
+        }
     }
 
     private void bulletsMoveAction() {
@@ -252,6 +376,10 @@ public class Game extends JPanel {
 
             if(heroAircraft.crash(bullet)) {
                 heroAircraft.decreaseHp(bullet.getPower());
+                if(bgmFlag) {
+                    MusicThread bulletHitThread = new MusicThread("src/videos/bullet_hit.wav");
+                    bulletHitThread.start();
+                }
                 bullet.vanish();
             }
         }
@@ -270,16 +398,25 @@ public class Game extends JPanel {
                 if (enemyAircraft.crash(bullet)) {
                     // 敌机撞击到英雄机子弹
                     // 敌机损失一定生命值
+                    if(bgmFlag) {
+                        MusicThread bulletHitThread = new MusicThread("src/videos/bullet_hit.wav");
+                        bulletHitThread.start();
+                    }
                     enemyAircraft.decreaseHp(bullet.getPower());
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
                         score += 10;
-                        if(enemyAircraft.bossFlag)
+                        if(enemyAircraft.bossFlag) {
                             bossGenerationFlag = true;
+                            if(bgmFlag) {
+                                bossThread.over();
+                                bgmThread = new MusicThread("src/videos/bgm.wav");
+                                bgmThread.start();
+                            }
+                        }
 
                         double prob = Math.random();
-                        double dirProb = Math.random();
                         AbstractItem newItem = null;
                         if (prob < 0.3) {
                             newItem = enemyAircraft.dropItem(healingItemFactory);
@@ -309,6 +446,10 @@ public class Game extends JPanel {
             }
 
             if(heroAircraft.crash(item)) {
+                if(bgmFlag) {
+                    MusicThread getSupplyThread = new MusicThread("src/videos/get_supply.wav");
+                    getSupplyThread.start();
+                }
                 item.itemFunction();
                 item.vanish();
             }
@@ -346,10 +487,10 @@ public class Game extends JPanel {
         super.paint(g);
 
         // 绘制背景,图片滚动
-        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop - Main.WINDOW_HEIGHT, null);
+        g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop - WINDOW_HEIGHT, null);
         g.drawImage(ImageManager.BACKGROUND_IMAGE, 0, this.backGroundTop, null);
         this.backGroundTop += 1;
-        if (this.backGroundTop == Main.WINDOW_HEIGHT) {
+        if (this.backGroundTop == WINDOW_HEIGHT) {
             this.backGroundTop = 0;
         }
 

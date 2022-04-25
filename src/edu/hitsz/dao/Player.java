@@ -10,7 +10,7 @@ public class Player implements Serializable {
     private int score;
     private LocalDateTime dateTime;
 
-    Player(String playerName, int score) {
+    public Player(String playerName, int score) {
         this.playerName = playerName;
         this.score = score;
         dateTime = LocalDateTime.now();

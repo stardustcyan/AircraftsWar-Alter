@@ -27,6 +27,10 @@ public class Context {
         this.aircraftSpeedY = aircraftSpeedY;
     }
 
+    public void setShootNum(int shootNum) {
+        this.shootNum = shootNum;
+    }
+
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
     }

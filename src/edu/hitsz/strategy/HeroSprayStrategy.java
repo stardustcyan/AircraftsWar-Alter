@@ -17,13 +17,13 @@ public class HeroSprayStrategy implements Strategy{
         List<BaseBullet> res = new LinkedList<>();
         int x = locationX;
         int y = locationY + direction * 2;
-        int bulletSpeedX = -2;
+        int bulletSpeedX = -1;
         int bulletSpeedY = aircraftSpeedY + direction * 8;
 
         BaseBullet baseBullet;
         for(int i = 0; i < shootNum; i++) {
             baseBullet = new HeroBullet(x + (i*2 - shootNum + 1)*10, y, bulletSpeedX, bulletSpeedY, power);
-            bulletSpeedX += 4 / (shootNum + 1);
+            bulletSpeedX += 2 / (shootNum - 1);
             res.add(baseBullet);
         }
 

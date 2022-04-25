@@ -49,7 +49,6 @@ public class ImageManager {
 
     static {
         try {
-            System.out.println(diffBG);
             BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(diffBG));
 
             HERO_IMAGE = ImageIO.read(new FileInputStream("src/images/hero.png"));

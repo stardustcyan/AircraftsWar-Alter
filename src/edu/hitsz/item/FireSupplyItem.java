@@ -13,8 +13,20 @@ public class FireSupplyItem extends AbstractItem {
     @Override
     public void itemFunction() {
         HeroAircraft hero = HeroAircraft.getInstance();
-        hero.fireObj.setStrategy(new HeroSprayStrategy());
-        System.out.println("FireSupply active!");
+        Runnable rFunc = () -> {
+            hero.fireObj.setStrategy(new HeroSprayStrategy());
+            System.out.println("FireSupply active!");
+            try {
+                Thread.sleep(20000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            hero.fireObj.setShootNum(1);
+            hero.fireObj.setStrategy(new HeroStraightStrategy());
+        };
+
+        Thread tSpray = new Thread(rFunc, "SprayPeriod");
+        tSpray.start();
     }
 
     @Override

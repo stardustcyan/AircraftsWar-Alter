@@ -23,6 +23,10 @@ public class MusicThread extends Thread {
     private AudioFormat audioFormat;
     private byte[] samples;
 
+    private boolean isPlaying = true;
+    private boolean isLoop = false;
+    SourceDataLine dataLine = null;
+
     public MusicThread(String filename) {
         //初始化filename
         this.filename = filename;
@@ -45,6 +49,10 @@ public class MusicThread extends Thread {
         }
     }
 
+    public void over() {
+        isPlaying = false;
+    }
+
     public byte[] getSamples(AudioInputStream stream) {
         int size = (int) (stream.getFrameLength() * audioFormat.getFrameSize());
         byte[] samples = new byte[size];
@@ -62,7 +70,6 @@ public class MusicThread extends Thread {
         int size = (int) (audioFormat.getFrameSize() * audioFormat.getSampleRate());
         byte[] buffer = new byte[size];
         //源数据行SoureDataLine是可以写入数据的数据行
-        SourceDataLine dataLine = null;
         //获取受数据行支持的音频格式DataLine.info
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, audioFormat);
         try {
@@ -75,12 +82,12 @@ public class MusicThread extends Thread {
         dataLine.start();
         try {
             int numBytesRead = 0;
-            while (numBytesRead != -1) {
-				//从音频流读取指定的最大数量的数据字节，并将其放入缓冲区中
+            while (numBytesRead != -1 && isPlaying) {
+                //从音频流读取指定的最大数量的数据字节，并将其放入缓冲区中
                 numBytesRead =
                         source.read(buffer, 0, buffer.length);
-				//通过此源数据行将数据写入混频器
-                if (numBytesRead != -1) {
+                //通过此源数据行将数据写入混频器
+                if (numBytesRead != -1 && isPlaying) {
                     dataLine.write(buffer, 0, numBytesRead);
                 }
             }
@@ -91,13 +98,21 @@ public class MusicThread extends Thread {
 
         dataLine.drain();
         dataLine.close();
-
     }
+
+    public void setLoop(boolean isLoop) {
+        System.out.println("Set MusicThread Loop.");
+        System.out.println(filename);
+        this.isLoop = isLoop;
+    }
+
 
     @Override
     public void run() {
-        InputStream stream = new ByteArrayInputStream(samples);
-        play(stream);
+        do {
+            InputStream stream = new ByteArrayInputStream(samples);
+            play(stream);
+        }while(isPlaying && isLoop);
     }
 }
 

@@ -10,5 +10,5 @@ public class GameStartOption{
     JButton easyButton;
     JButton normalButton;
     JButton hardButton;
-    private JCheckBox audioCheckBox;
+    JCheckBox audioCheckBox;
 }

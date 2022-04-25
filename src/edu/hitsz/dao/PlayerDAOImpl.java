@@ -7,7 +7,12 @@ import java.util.List;
 public class PlayerDAOImpl implements PlayerDAO{
     private static List<Player> playerList = new LinkedList<>();
 
-    public void getPlayerList() {
+    public List<Player> getPlayerList() {
+        return playerList;
+    }
+
+    public void readPlayerList() {
+        playerList.clear();
         try {
             FileInputStream fis = new FileInputStream("player.dat");
             ObjectInputStream ois = new ObjectInputStream(fis);
@@ -20,6 +25,7 @@ public class PlayerDAOImpl implements PlayerDAO{
         } catch(Exception e) {
             e.printStackTrace();
         }
+
     }
 
     public void addPlayer(String playerName, int score) {
