@@ -2,6 +2,7 @@ package edu.hitsz.bullet;
 
 import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
+import edu.hitsz.basic.EnemyInstance;
 
 /**
  * 子弹类。
@@ -16,6 +17,10 @@ public class BaseBullet extends AbstractFlyingObject {
     public BaseBullet(int locationX, int locationY, int speedX, int speedY, int power) {
         super(locationX, locationY, speedX, speedY);
         this.power = power;
+    }
+
+    public EnemyInstance trans() {
+        return null;
     }
 
     @Override

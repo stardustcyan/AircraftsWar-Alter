@@ -7,8 +7,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.sql.Time;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 程序入口
@@ -20,6 +18,7 @@ public class Main {
     public static boolean bgmFlag = false;
     public static final int WINDOW_HEIGHT = 768;
     public static Object lock = new Object();
+    private static int difficultyOption;
 
     public static JFrame frame = new JFrame("Aircraft War");
 
@@ -61,7 +60,21 @@ public class Main {
                     e.printStackTrace();
                 }
             }
-            Game game = new Game();
+            Game game = null;
+            switch(difficultyOption) {
+                case 0: {
+                    game = new GameEasy();
+                    break;
+                }
+                case 1: {
+                    game = new GameMedium();
+                    break;
+                }
+                case 2: {
+                    game = new GameHard();
+                    break;
+                }
+            }
             frame.add(game);
             frame.setVisible(true);
             game.action();
@@ -74,6 +87,7 @@ public class Main {
                 public void actionPerformed(ActionEvent e) {
                     synchronized (lock) {
                         ImageManager.diffBG = "src/images/bg.jpg";
+                        difficultyOption = 0;
                         try {
                             ImageManager.BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(ImageManager.diffBG));
                         } catch (IOException ex) {
@@ -90,6 +104,7 @@ public class Main {
                 public void actionPerformed(ActionEvent e) {
                     synchronized (lock) {
                         ImageManager.diffBG = "src/images/bg2.jpg";
+                        difficultyOption = 1;
                         try {
                             ImageManager.BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(ImageManager.diffBG));
                         } catch (IOException ex) {
@@ -106,6 +121,7 @@ public class Main {
                 public void actionPerformed(ActionEvent e) {
                     synchronized (lock) {
                         ImageManager.diffBG = "src/images/bg3.jpg";
+                        difficultyOption = 2;
                         try {
                             ImageManager.BACKGROUND_IMAGE = ImageIO.read(new FileInputStream(ImageManager.diffBG));
                         } catch (IOException ex) {

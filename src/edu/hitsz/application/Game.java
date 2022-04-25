@@ -26,7 +26,7 @@ import static edu.hitsz.application.Main.*;
  *
  * @author hitsz
  */
-public class Game extends JPanel {
+public abstract class Game extends JPanel {
 
     private int backGroundTop = 0;
 
@@ -41,20 +41,25 @@ public class Game extends JPanel {
     private int timeInterval = 40;
 
     private final HeroAircraft heroAircraft;
-    private final List<AbstractAircraft> enemyAircrafts;
+    public static List<AbstractAircraft> enemyAircrafts;
     private final List<BaseBullet> heroBullets;
-    private final List<BaseBullet> enemyBullets;
+    public static List<BaseBullet> enemyBullets;
     private final List<AbstractItem> itemList;
-    private final EliteEnemyFactory eliteFactory = new EliteEnemyFactory();
-    private final MobEnemyFactory mobFactory = new MobEnemyFactory();
-    private final BossEnemyFactory bossFactory = new BossEnemyFactory();
+    final EliteEnemyFactory eliteFactory = new EliteEnemyFactory();
+    final MobEnemyFactory mobFactory = new MobEnemyFactory();
+    final BossEnemyFactory bossFactory = new BossEnemyFactory();
     private final HealingItemFactory healingItemFactory = new HealingItemFactory();
     private final FireSupplyItemFactory fireSupplyItemFactory = new FireSupplyItemFactory();
     private final BombSupplyItemFactory bombSupplyItemFactory = new BombSupplyItemFactory();
 
-    private int enemyMaxNumber = 5;
+    int enemyMaxNumber = 5;
 
     private boolean gameOverFlag = false;
+
+    int bossHp = 1500;
+    double bossHpRate = 1.5;
+    int mobHp = 100;
+    int eliteHp = 200;
     private int score = 0;
     private int time = 0;
     /**
@@ -63,14 +68,23 @@ public class Game extends JPanel {
      */
     private int cycleDuration = 500;
     private int cycleTime = 0;
-    private int eliteGenerationFlag = 0;
-    private int mobGenerationFlag = 0;
+    int eliteGenerationFlag = 0;
+    int mobGenerationFlag = 0;
 
-    private int shootPeriodFlag = 0;
-    private boolean bossGenerationFlag = true;
+    int shootPeriodFlag = 0;
+    int shootPeriodLimit = 5;
+    int bossScore = 0;
+    private double shootPeriodRate = 0.8;
+    private double maxNumberRate = 1.2;
+    private double enemyGenerationRate = 0.8;
+    int mobGenerationLimit = 5;
+    int eliteGenerationLimit = 20;
+    int bossGenerationLimit = 200;
 
-    private MusicThread bgmThread = new MusicThread("src/videos/bgm.wav");
-    private MusicThread bossThread = new MusicThread("src/videos/bgm_boss.wav");
+    boolean bossGenerationFlag = true;
+
+    MusicThread bgmThread = new MusicThread("src/videos/bgm.wav");
+    MusicThread bossThread = new MusicThread("src/videos/bgm_boss.wav");
 
     public Game() {
         heroAircraft = HeroAircraft.getInstance();
@@ -100,10 +114,16 @@ public class Game extends JPanel {
 
     }
 
+    public abstract void difficultyTag();
+
+    public abstract void generateEnemy();
+    public abstract void difficultyEvolve();
     /**
      * 游戏启动入口，执行游戏逻辑
      */
     public void action() {
+        difficultyTag();
+
         if(Main.bgmFlag) {
             bgmThread.start();
             bgmThread.setLoop(true);
@@ -117,50 +137,7 @@ public class Game extends JPanel {
             // 周期性执行（控制频率）
             if (timeCountAndNewCycleJudge()) {
                 System.out.println(time);
-                if(score % 200 == 0 && score != 0 && bossGenerationFlag) {
-                    if(bgmFlag) {
-                        bossThread = new MusicThread("src/videos/bgm_boss.wav");
-                        bossThread.start();
-                        bossThread.setLoop(true);
-                        bgmThread.over();
-                    }
-                    bossGenerationFlag = false;
-                    enemyAircrafts.add(bossFactory.createEnemy(
-                            (int) (Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
-                            0,
-                            1,
-                            2,
-                            1500
-                    ));
-                }
-                if(eliteGenerationFlag == 20) {
-                    eliteGenerationFlag = 0;
-                    if(enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(eliteFactory.createEnemy(
-                                (int) ( Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth()))*1,
-                                (int) (Math.random() * WINDOW_HEIGHT * 0.2)*1,
-                                Math.random() > 0.3 ? 4 : 0,
-                                7,
-                                200
-                        ));
-                    }
-                }
-                // 新敌机产生
-                if(mobGenerationFlag == 5) {
-                    mobGenerationFlag = 0;
-                    if (enemyAircrafts.size() < enemyMaxNumber) {
-                        enemyAircrafts.add(mobFactory.createEnemy(
-                                (int) (Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
-                                (int) (Math.random() * WINDOW_HEIGHT * 0.2) * 1,
-                                0,
-                                10,
-                                100
-                        ));
-                    }
-                }
-                eliteGenerationFlag++;
-                mobGenerationFlag++;
-                shootPeriodFlag++;
+                generateEnemy();
                 // 飞机射出子弹
                 shootAction();
             }
@@ -324,7 +301,7 @@ public class Game extends JPanel {
 
     private void shootAction() {
         // 敌机射击
-        if(shootPeriodFlag == 5) {
+        if(shootPeriodFlag == shootPeriodLimit) {
             for (AbstractAircraft enemy : enemyAircrafts) {
                 enemyBullets.addAll(enemy.shoot());
             }
@@ -406,7 +383,16 @@ public class Game extends JPanel {
                     bullet.vanish();
                     if (enemyAircraft.notValid()) {
                         // 获得分数，产生道具补给
-                        score += 10;
+                        if(enemyAircraft.eliteFlag) {
+                            score += 20;
+                            bossScore += 20;
+                        } else if(enemyAircraft.bossFlag) {
+                            score += 50;
+                            bossScore += 50;
+                        } else {
+                            score += 10;
+                            bossScore += 10;
+                        }
                         if(enemyAircraft.bossFlag) {
                             bossGenerationFlag = true;
                             if(bgmFlag) {
@@ -414,6 +400,7 @@ public class Game extends JPanel {
                                 bgmThread = new MusicThread("src/videos/bgm.wav");
                                 bgmThread.start();
                             }
+                            difficultyEvolve();
                         }
 
                         double prob = Math.random();
@@ -429,6 +416,7 @@ public class Game extends JPanel {
                         if(newItem != null) {
                             itemList.add(newItem);
                         }
+
                     }
                 }
                 // 英雄机 与 敌机 相撞，均损毁

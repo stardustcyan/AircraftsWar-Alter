@@ -21,8 +21,8 @@ public class HealingItem extends AbstractItem {
     public void forward() {
         super.forward();
         // 判定 y 轴向下飞行出界
-        if (locationY >= Main.WINDOW_HEIGHT ) {
-            vanish();
+        if (locationY >= Main.WINDOW_HEIGHT || locationY <= 0) {
+            speedY = -speedY;
         }
     }
 }

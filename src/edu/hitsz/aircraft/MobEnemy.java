@@ -1,6 +1,7 @@
 package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
+import edu.hitsz.basic.EnemyInstance;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
@@ -14,11 +15,23 @@ import java.util.List;
  *
  * @author hitsz
  */
-public class MobEnemy extends AbstractAircraft {
+public class MobEnemy extends AbstractAircraft implements EnemyInstance {
 
     public MobEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
         bossFlag = false;
+        eliteFlag = false;
+    }
+
+    public void info() {
+        System.out.println("MobEnemy");
+    }
+    public EnemyInstance trans() {
+        return this;
+    }
+
+    public void update() {
+        vanish();
     }
 
     @Override

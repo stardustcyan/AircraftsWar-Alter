@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.basic.EnemyInstance;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.factory.AbstractItemFactory;
@@ -20,6 +21,7 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
     protected int maxHp;
     protected int hp;
     public boolean bossFlag;
+    public boolean eliteFlag;
 
     public AbstractAircraft(){ }
 
@@ -28,6 +30,8 @@ public abstract class AbstractAircraft extends AbstractFlyingObject {
         this.hp = hp;
         this.maxHp = hp;
     }
+
+    public abstract EnemyInstance trans();
 
     public void decreaseHp(int decrease){
         hp -= decrease;

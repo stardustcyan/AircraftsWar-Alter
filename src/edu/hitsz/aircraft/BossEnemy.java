@@ -1,6 +1,7 @@
 package edu.hitsz.aircraft;
 
 import edu.hitsz.application.Main;
+import edu.hitsz.basic.EnemyInstance;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
@@ -15,7 +16,12 @@ public class BossEnemy extends AbstractAircraft{
     public BossEnemy(int locationX, int locationY, int speedX, int speedY, int hp) {
         super(locationX, locationY, speedX, speedY, hp);
         bossFlag = true;
+        eliteFlag = false;
         fireObj = new Context(new EnemySprayStrategy(), locationX, locationY, 1, speedY, 30, 7);
+    }
+
+    public EnemyInstance trans() {
+        return null;
     }
 
     @Override

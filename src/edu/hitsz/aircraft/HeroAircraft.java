@@ -1,5 +1,6 @@
 package edu.hitsz.aircraft;
 
+import edu.hitsz.basic.EnemyInstance;
 import edu.hitsz.bullet.BaseBullet;
 import edu.hitsz.factory.AbstractItemFactory;
 import edu.hitsz.item.AbstractItem;
@@ -12,6 +13,9 @@ import java.util.List;
 public class HeroAircraft extends AbstractAircraft{
     private volatile static HeroAircraft hero;
     public Context fireObj;
+    public EnemyInstance trans() {
+        return null;
+    }
 
     private HeroAircraft() { }
     public static HeroAircraft getInstance() {

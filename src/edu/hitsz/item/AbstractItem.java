@@ -1,5 +1,6 @@
 package edu.hitsz.item;
 
+import edu.hitsz.application.Main;
 import edu.hitsz.basic.AbstractFlyingObject;
 import edu.hitsz.aircraft.HeroAircraft;
 
@@ -9,4 +10,5 @@ public abstract class AbstractItem extends AbstractFlyingObject {
     }
 
     public abstract void itemFunction();
+
 }
