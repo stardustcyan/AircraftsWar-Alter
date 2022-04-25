@@ -225,7 +225,6 @@ public abstract class Game extends JPanel {
                     }
                 });
 
-
                 List<Player> playerList = null;
 
                 Runnable rAddPlayer = () -> {
@@ -259,11 +258,15 @@ public abstract class Game extends JPanel {
                     rankObj.DELETEButton.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(ActionEvent e) {
-                            int row = rankObj.tableRank.getSelectedRow();
-                            if(row != -1) {
-                                model.removeRow(row);
-                                playerDAO.deletePlayer(row);
-                                playerDAO.savePlayerList();
+                            synchronized (lock) {
+                                int row = rankObj.tableRank.getSelectedRow();
+                                String[] option = {"OK", "Cancel"};
+                                int opt = JOptionPane.showOptionDialog(null, "是否确认删除该记录？", "删除确认", JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, option, option[0]);
+                                if (row != -1 && opt == 0) {
+                                    model.removeRow(row);
+                                    playerDAO.deletePlayer(row);
+                                    playerDAO.savePlayerList();
+                                }
                             }
                         }
                     });
