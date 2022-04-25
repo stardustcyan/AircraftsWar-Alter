@@ -60,7 +60,7 @@ public abstract class Game extends JPanel {
     double bossHpRate = 1.5;
     int mobHp = 100;
     int eliteHp = 200;
-    private int score = 0;
+    public static int score = 0;
     private int time = 0;
     /**
      * 周期（ms)
@@ -73,7 +73,7 @@ public abstract class Game extends JPanel {
 
     int shootPeriodFlag = 0;
     int shootPeriodLimit = 5;
-    int bossScore = 0;
+    public static int bossScore = 0;
     private double shootPeriodRate = 0.8;
     private double maxNumberRate = 1.2;
     private double enemyGenerationRate = 0.8;

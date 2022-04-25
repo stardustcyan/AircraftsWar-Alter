@@ -3,6 +3,8 @@ package edu.hitsz.application;
 import static edu.hitsz.application.Main.*;
 
 public class GameHard extends Game{
+    private int mobGenerationLimit = 3;
+    private int eliteGenerationLimit = 10;
     private double shootPeriodRate = 0.8;
     private double maxNumberRate = 1.2;
     private double enemyGenerationRate = 0.8;
@@ -31,7 +33,7 @@ public class GameHard extends Game{
             bossHp = (int)(bossHp * bossHpRate);
             enemyAircrafts.add(bossFactory.createEnemy(
                     (int) (Math.random() * (WINDOW_WIDTH - ImageManager.MOB_ENEMY_IMAGE.getWidth())) * 1,
-                    0,
+                    10,
                     1,
                     0,
                     bossHp
