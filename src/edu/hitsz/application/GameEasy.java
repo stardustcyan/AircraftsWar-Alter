@@ -1,5 +1,7 @@
 package edu.hitsz.application;
 
+import edu.hitsz.dao.PlayerDAO;
+
 import static edu.hitsz.application.Main.*;
 
 public class GameEasy extends Game{
@@ -39,5 +41,9 @@ public class GameEasy extends Game{
         eliteGenerationFlag++;
         mobGenerationFlag++;
         shootPeriodFlag++;
+    }
+
+    public void readPlayerList(PlayerDAO playerDAO) {
+        playerDAO.readPlayerList(0);
     }
 }

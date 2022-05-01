@@ -18,7 +18,7 @@ public class Main {
     public static boolean bgmFlag = false;
     public static final int WINDOW_HEIGHT = 768;
     public static Object lock = new Object();
-    private static int difficultyOption;
+    public static int difficultyOption;
 
     public static JFrame frame = new JFrame("Aircraft War");
 

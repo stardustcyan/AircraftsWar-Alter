@@ -10,5 +10,5 @@ public interface PlayerDAO {
     void printPlayerList();
     void savePlayerList();
 
-    void readPlayerList();
+    void readPlayerList(int difficultyOption);
 }

@@ -11,10 +11,25 @@ public class PlayerDAOImpl implements PlayerDAO{
         return playerList;
     }
 
-    public void readPlayerList() {
+    public void readPlayerList(int difficulyOption) {
         playerList.clear();
+        String rankDir = null;
+        switch(difficulyOption) {
+            case 0: {
+                rankDir = "playerEasy.dat";
+                break;
+            }
+            case 1: {
+                rankDir = "PlayerNormal.dat";
+                break;
+            }
+            case 2: {
+                rankDir = "PlayerHard.dat";
+                break;
+            }
+        }
         try {
-            FileInputStream fis = new FileInputStream("player.dat");
+            FileInputStream fis = new FileInputStream(rankDir);
             ObjectInputStream ois = new ObjectInputStream(fis);
             while (true) {
                 Player player = (Player) ois.readObject();

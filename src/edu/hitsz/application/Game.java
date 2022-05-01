@@ -118,6 +118,7 @@ public abstract class Game extends JPanel {
 
     public abstract void generateEnemy();
     public abstract void difficultyEvolve();
+    public abstract void readPlayerList(PlayerDAO playerDAO);
     /**
      * 游戏启动入口，执行游戏逻辑
      */
@@ -176,7 +177,7 @@ public abstract class Game extends JPanel {
                 System.out.println("Game Over!");
 
                 PlayerDAO playerDAO = new PlayerDAOImpl();
-                playerDAO.readPlayerList();
+                readPlayerList(playerDAO);
 
                 JFrame addFrame = new JFrame("添加新纪录");
                 CreateNewPlayer addObj = new CreateNewPlayer();
@@ -184,7 +185,26 @@ public abstract class Game extends JPanel {
                 addFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                 addFrame.pack();
 
-                JFrame rankFrame = new JFrame("得分排名");
+                JFrame rankFrame;
+                switch(difficultyOption) {
+                    case 0: {
+                        rankFrame = new JFrame("得分排名:EASY");
+                        break;
+                    }
+
+                    case 1: {
+                        rankFrame = new JFrame("得分排名:NORMAL");
+                        break;
+                    }
+                    case 2: {
+                        rankFrame = new JFrame("得分排名:HARD");
+                        break;
+                    }
+                    default: {
+                        rankFrame = new JFrame("得分排名");
+                    }
+                }
+
                 PlayerRank rankObj = new PlayerRank();
                 rankFrame.setContentPane(rankObj.panelRank);
                 rankFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

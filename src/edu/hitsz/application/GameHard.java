@@ -1,5 +1,7 @@
 package edu.hitsz.application;
 
+import edu.hitsz.dao.PlayerDAO;
+
 import static edu.hitsz.application.Main.*;
 
 public class GameHard extends Game{
@@ -77,5 +79,9 @@ public class GameHard extends Game{
         mobGenerationLimit = (int)(mobGenerationLimit * enemyGenerationRate);
         eliteGenerationLimit = (int)(eliteGenerationLimit * enemyGenerationRate);
         bossGenerationLimit = (int)(bossGenerationLimit * enemyGenerationRate);
+    }
+
+    public void readPlayerList(PlayerDAO playerDAO) {
+        playerDAO.readPlayerList(2);
     }
 }
