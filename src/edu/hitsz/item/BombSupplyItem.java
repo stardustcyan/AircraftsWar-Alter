@@ -26,10 +26,10 @@ public class BombSupplyItem extends AbstractItem {
         for(AbstractAircraft enemy: Game.enemyAircrafts) {
             if(!enemy.bossFlag) {
                 addEnemyInstance(enemy.trans());
-                if(enemy.eliteFlag) {
+                if(enemy.eliteFlag && !enemy.notValid()) {
                     Game.score += 20;
                     Game.bossScore += 20;
-                } else {
+                } else if(!enemy.notValid()) {
                     Game.score += 10;
                     Game.score += 10;
                 }

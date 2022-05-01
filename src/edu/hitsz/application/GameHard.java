@@ -41,7 +41,7 @@ public class GameHard extends Game{
                     bossHp
             ));
         }
-        if(eliteGenerationFlag == eliteGenerationLimit) {
+        if(eliteGenerationFlag >= eliteGenerationLimit) {
             eliteGenerationFlag = 0;
             if(enemyAircrafts.size() < enemyMaxNumber) {
                 enemyAircrafts.add(eliteFactory.createEnemy(
@@ -54,7 +54,7 @@ public class GameHard extends Game{
             }
         }
         // 新敌机产生
-        if(mobGenerationFlag == mobGenerationLimit) {
+        if(mobGenerationFlag >= mobGenerationLimit) {
             mobGenerationFlag = 0;
             if (enemyAircrafts.size() < enemyMaxNumber) {
                 enemyAircrafts.add(mobFactory.createEnemy(

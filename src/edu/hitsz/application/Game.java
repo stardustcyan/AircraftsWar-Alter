@@ -324,7 +324,7 @@ public abstract class Game extends JPanel {
 
     private void shootAction() {
         // 敌机射击
-        if(shootPeriodFlag == shootPeriodLimit) {
+        if(shootPeriodFlag >= shootPeriodLimit) {
             for (AbstractAircraft enemy : enemyAircrafts) {
                 enemyBullets.addAll(enemy.shoot());
             }
