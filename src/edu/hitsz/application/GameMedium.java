@@ -81,4 +81,8 @@ public class GameMedium extends Game{
     public void readPlayerList(PlayerDAO playerDAO) {
         playerDAO.readPlayerList(1);
     }
+
+    public void savePlayerList(PlayerDAO playerDAO) {
+        playerDAO.savePlayerList(1);
+    }
 }

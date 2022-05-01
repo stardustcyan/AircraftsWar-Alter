@@ -84,4 +84,8 @@ public class GameHard extends Game{
     public void readPlayerList(PlayerDAO playerDAO) {
         playerDAO.readPlayerList(2);
     }
+
+    public void savePlayerList(PlayerDAO playerDAO) {
+        playerDAO.savePlayerList(2);
+    }
 }

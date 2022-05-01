@@ -119,6 +119,7 @@ public abstract class Game extends JPanel {
     public abstract void generateEnemy();
     public abstract void difficultyEvolve();
     public abstract void readPlayerList(PlayerDAO playerDAO);
+    public abstract void savePlayerList(PlayerDAO playerDAO);
     /**
      * 游戏启动入口，执行游戏逻辑
      */
@@ -227,6 +228,7 @@ public abstract class Game extends JPanel {
                     public void actionPerformed(ActionEvent e) {
                         synchronized (lock) {
                             playerDAO.addPlayer(addObj.playerIDEditior.getText(), score);
+                            savePlayerList(playerDAO);
                             addFrame.setVisible(false);
                             rankFrame.setVisible(true);
                             lock.notify();
@@ -285,7 +287,7 @@ public abstract class Game extends JPanel {
                                 if (row != -1 && opt == 0) {
                                     model.removeRow(row);
                                     playerDAO.deletePlayer(row);
-                                    playerDAO.savePlayerList();
+                                    savePlayerList(playerDAO);
                                 }
                             }
                         }

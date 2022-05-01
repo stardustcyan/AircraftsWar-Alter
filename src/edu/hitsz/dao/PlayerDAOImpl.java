@@ -11,10 +11,10 @@ public class PlayerDAOImpl implements PlayerDAO{
         return playerList;
     }
 
-    public void readPlayerList(int difficulyOption) {
+    public void readPlayerList(int difficultyOption) {
         playerList.clear();
         String rankDir = null;
-        switch(difficulyOption) {
+        switch(difficultyOption) {
             case 0: {
                 rankDir = "playerEasy.dat";
                 break;
@@ -54,17 +54,30 @@ public class PlayerDAOImpl implements PlayerDAO{
             }
         }
         playerList.add(newPlayer);
-        savePlayerList();
     }
 
     public void deletePlayer(int playerIndex) {
         playerList.remove(playerIndex);
-        savePlayerList();
     }
 
-    public void savePlayerList() {
+    public void savePlayerList(int difficultyOption) {
+        String rankDir = null;
+        switch(difficultyOption) {
+            case 0: {
+                rankDir = "playerEasy.dat";
+                break;
+            }
+            case 1: {
+                rankDir = "PlayerNormal.dat";
+                break;
+            }
+            case 2: {
+                rankDir = "PlayerHard.dat";
+                break;
+            }
+        }
         try {
-            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("player.dat"));
+            ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(rankDir));
             for(Player player: playerList) {
                 oos.writeObject(player);
             }

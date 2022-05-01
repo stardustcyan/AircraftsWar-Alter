@@ -8,7 +8,7 @@ public interface PlayerDAO {
     void deletePlayer(int playerIndex);
 
     void printPlayerList();
-    void savePlayerList();
+    void savePlayerList(int difficultyOption);
 
     void readPlayerList(int difficultyOption);
 }

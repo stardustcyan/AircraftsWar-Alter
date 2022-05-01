@@ -46,4 +46,8 @@ public class GameEasy extends Game{
     public void readPlayerList(PlayerDAO playerDAO) {
         playerDAO.readPlayerList(0);
     }
+
+    public void savePlayerList(PlayerDAO playerDAO) {
+        playerDAO.savePlayerList(0);
+    }
 }
